@@ -33,11 +33,17 @@ export function BookingModal({
 }: BookingModalProps) {
   const now = new Date();
   const defaultInicio = toLocalDatetime(new Date(now.getTime() + 60_000));
-  const defaultFin = toLocalDatetime(new Date(now.getTime() + 4 * 3_600_000));
 
   const [inicio, setInicio] = useState(defaultInicio);
-  const [fin, setFin] = useState(defaultFin);
+  const [fin, setFin] = useState(defaultInicio);
   const [placa, setPlaca] = useState("");
+
+  const handleInicioChange = (valor: string) => {
+    setInicio(valor);
+    if (valor && fin <= valor) {
+      setFin(valor);
+    }
+  };
 
   const horas = horasEntre(inicio, fin);
   const estimado = horas * Number(tarifaPorHora);
@@ -73,7 +79,7 @@ export function BookingModal({
               type="datetime-local"
               value={inicio}
               min={toLocalDatetime(now)}
-              onChange={(e) => setInicio(e.target.value)}
+              onChange={(e) => handleInicioChange(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>

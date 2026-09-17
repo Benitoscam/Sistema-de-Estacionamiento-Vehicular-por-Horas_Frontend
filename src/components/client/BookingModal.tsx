@@ -9,6 +9,7 @@ interface BookingModalProps {
     espacio_id: string;
     hora_inicio_planeada: string;
     hora_fin_planeada: string;
+    placa: string;
   }) => void;
   isPending: boolean;
 }
@@ -36,10 +37,12 @@ export function BookingModal({
 
   const [inicio, setInicio] = useState(defaultInicio);
   const [fin, setFin] = useState(defaultFin);
+  const [placa, setPlaca] = useState("");
 
   const horas = horasEntre(inicio, fin);
   const estimado = horas * Number(tarifaPorHora);
-  const invalido = horas <= 0 || !inicio || !fin;
+  const placaLimpia = placa.trim().toUpperCase();
+  const invalido = horas <= 0 || !inicio || !fin || placaLimpia.length < 3;
 
   const handleConfirm = () => {
     if (invalido) return;
@@ -47,6 +50,7 @@ export function BookingModal({
       espacio_id: espacio.id,
       hora_inicio_planeada: new Date(inicio).toISOString(),
       hora_fin_planeada: new Date(fin).toISOString(),
+      placa: placaLimpia,
     });
   };
 
@@ -83,6 +87,19 @@ export function BookingModal({
               onChange={(e) => setFin(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Placa del vehículo</label>
+            <input
+              type="text"
+              value={placa}
+              onChange={(e) => setPlaca(e.target.value)}
+              placeholder="Ej: ABC123"
+              maxLength={15}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm uppercase tracking-wide focus:border-primary focus:ring-1 focus:ring-primary"
+            />
+            <p className="text-xs text-gray-400 mt-1">3-15 caracteres, solo letras, números y guión</p>
           </div>
 
           {horas > 0 && (

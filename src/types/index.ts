@@ -52,6 +52,19 @@ export interface Ocupacion {
   espacios: Espacio[];
 }
 
+export interface Reserva {
+  id: string;
+  espacio_id: string;
+  espacio_codigo: string | null;
+  usuario_id: string;
+  fecha: string | null;
+  hora_inicio_planeada: string | null;
+  hora_fin_planeada: string | null;
+  monto_pagado: string | null;
+  monto_estimado: string | null;
+  estado: string;
+}
+
 export interface ApiOk<T> {
   data: T;
 }

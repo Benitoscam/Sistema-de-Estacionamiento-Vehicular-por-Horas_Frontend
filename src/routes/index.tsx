@@ -4,7 +4,7 @@ import { Layout } from "../components/Layout";
 import { Login } from "../pages/Login";
 import { Register } from "../pages/Register";
 import { StaffLogin } from "../pages/StaffLogin";
-import { Ocupacion } from "../pages/Ocupacion";
+import { Buscar } from "../pages/Buscar";
 import { NotFound } from "../pages/NotFound";
 
 export function AppRoutes() {
@@ -18,7 +18,7 @@ export function AppRoutes() {
         element={
           <RequireAuth roles={["admin", "operador", "cliente"]}>
             <Layout>
-              <Ocupacion />
+              <Buscar />
             </Layout>
           </RequireAuth>
         }

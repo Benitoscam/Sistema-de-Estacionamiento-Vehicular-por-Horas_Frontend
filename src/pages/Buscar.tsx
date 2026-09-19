@@ -22,17 +22,35 @@ export function Buscar() {
   const queryClient = useQueryClient();
 
   const [zonaSeleccionada, setZonaSeleccionada] = useState<string | null>(null);
-  const [espacioSeleccionado, setEspacioSeleccionado] = useState<Espacio | null>(null);
+  const [espacioSeleccionado, setEspacioSeleccionado] =
+    useState<Espacio | null>(null);
 
   const now = new Date();
-  const [fechaEntrada, setFechaEntrada] = useState(() => toLocalDatetime(new Date(now.getTime() + 60_000)));
-  const [fechaSalida, setFechaSalida] = useState(() => toLocalDatetime(new Date(now.getTime() + 60_000)));
+  const [fechaEntrada, setFechaEntrada] = useState(() =>
+    toLocalDatetime(new Date(now.getTime() + 60_000)),
+  );
+  const [fechaSalida, setFechaSalida] = useState(() =>
+    toLocalDatetime(new Date(now.getTime() + 60_000)),
+  );
   const [usandoFiltro, setUsandoFiltro] = useState(false);
 
-  const { data: ocupacion, isLoading: ocupacionLoading, error: ocupacionError } = useOcupacion();
+  const {
+    data: ocupacion,
+    isLoading: ocupacionLoading,
+    error: ocupacionError,
+  } = useOcupacion();
 
-  const { data: disponibilidad, isLoading: disponibilidadLoading, error: disponibilidadError } = useQuery({
-    queryKey: ["disponibilidad", fechaEntrada, fechaSalida, zonaSeleccionada ?? "all"],
+  const {
+    data: disponibilidad,
+    isLoading: disponibilidadLoading,
+    error: disponibilidadError,
+  } = useQuery({
+    queryKey: [
+      "disponibilidad",
+      fechaEntrada,
+      fechaSalida,
+      zonaSeleccionada ?? "all",
+    ],
     queryFn: () =>
       getDisponibilidad(
         formatFechaISO(new Date(fechaEntrada)),
@@ -59,11 +77,14 @@ export function Buscar() {
   const error = usandoFiltro ? disponibilidadError : ocupacionError;
 
   const espaciosDisponibles = usandoFiltro
-    ? (disponibilidad?.espacios ?? [])
+    ? (disponibilidad?.espacios ?? []).map((e) => ({
+        ...e,
+        estado: "disponible" as const,
+      }))
     : (ocupacion?.espacios ?? []).filter((e) => e.estado === "disponible");
 
   const espaciosFiltrados = espaciosDisponibles.filter((e) => {
-    if (zonaSeleccionada && e.zona_nombre !== zonaSeleccionada) return false;
+    if (zonaSeleccionada && e.zona_id !== zonaSeleccionada) return false; // antes: e.zona_nombre !== zonaSeleccionada
     return true;
   });
 
@@ -75,7 +96,7 @@ export function Buscar() {
   };
 
   const totalDisponibles = usandoFiltro
-    ? disponibilidad?.total_disponibles ?? 0
+    ? (disponibilidad?.total_disponibles ?? 0)
     : (ocupacion?.por_zona?.reduce((sum, z) => sum + z.disponibles, 0) ?? 0);
 
   const totalEspacios = ocupacion?.total ?? 0;
@@ -100,21 +121,27 @@ export function Buscar() {
           <div className="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-blue-50 blur-3xl pointer-events-none" />
           <div className="relative z-10">
             <div className="inline-flex items-center gap-1.5 bg-blue-50 text-primary px-3 py-1 rounded-full text-xs font-semibold mb-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" /> Disponibilidad en vivo
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />{" "}
+              Disponibilidad en vivo
             </div>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight mb-2">
               Encuentra y Reserva tu Espacio
             </h1>
             <p className="text-gray-500 max-w-xl">
-              Verifica disponibilidad en tiempo real o accede al instante directamente en la entrada.
+              Verifica disponibilidad en tiempo real o accede al instante
+              directamente en la entrada.
             </p>
           </div>
           <div className="mt-4 pt-4 bg-gray-50 rounded-lg p-3 flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center text-primary shadow-sm">
-              <span className="material-symbols-outlined text-[20px]">verified_user</span>
+              <span className="material-symbols-outlined text-[20px]">
+                verified_user
+              </span>
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">Reserva Segura</p>
+              <p className="text-sm font-semibold text-gray-900">
+                Reserva Segura
+              </p>
               <p className="text-xs text-gray-500">Confirmación inmediata</p>
             </div>
           </div>
@@ -124,11 +151,18 @@ export function Buscar() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">
-                <span className="material-symbols-outlined text-[14px]">bolt</span> ACCESO RÁPIDO
+                <span className="material-symbols-outlined text-[14px]">
+                  bolt
+                </span>{" "}
+                ACCESO RÁPIDO
               </span>
-              <span className="text-sm font-semibold text-primary">Sin Reserva</span>
+              <span className="text-sm font-semibold text-primary">
+                Sin Reserva
+              </span>
             </div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-1">¿Llegaste directo?</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">
+              ¿Llegaste directo?
+            </h2>
             <p className="text-xs text-gray-500 mb-4">
               Preséntate en la entrada y el operador registrará tu ingreso.
             </p>
@@ -143,7 +177,9 @@ export function Buscar() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div className="flex flex-col">
             <label className="text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[16px] text-primary">calendar_today</span>
+              <span className="material-symbols-outlined text-[16px] text-primary">
+                calendar_today
+              </span>
               Fecha
             </label>
             <input
@@ -159,7 +195,9 @@ export function Buscar() {
           </div>
           <div className="flex flex-col">
             <label className="text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[16px] text-primary">schedule</span>
+              <span className="material-symbols-outlined text-[16px] text-primary">
+                schedule
+              </span>
               Hora Entrada
             </label>
             <input
@@ -174,7 +212,9 @@ export function Buscar() {
           </div>
           <div className="flex flex-col">
             <label className="text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[16px] text-primary">timelapse</span>
+              <span className="material-symbols-outlined text-[16px] text-primary">
+                timelapse
+              </span>
               Hora Salida
             </label>
             <input
@@ -193,7 +233,9 @@ export function Buscar() {
               onClick={handleBuscar}
               className="w-full h-[46px] rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[18px]">search</span>
+              <span className="material-symbols-outlined text-[18px]">
+                search
+              </span>
               Buscar
             </button>
             {usandoFiltro && (
@@ -221,20 +263,22 @@ export function Buscar() {
             <span className="material-symbols-outlined text-[16px]">apps</span>
             Todos ({totalDisponibles})
           </button>
-          {(usandoFiltro ? disponibilidad?.por_zona : ocupacion?.por_zona)?.map((z) => (
-            <button
-              key={z.zona_id}
-              type="button"
-              onClick={() => setZonaSeleccionada(z.zona_nombre)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 capitalize cursor-pointer ${
-                zonaSeleccionada === z.zona_nombre
-                  ? "bg-primary text-white shadow-sm"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {z.zona_nombre} ({z.disponibles})
-            </button>
-          ))}
+          {(usandoFiltro ? disponibilidad?.por_zona : ocupacion?.por_zona)?.map(
+            (z) => (
+              <button
+                key={z.zona_id}
+                type="button"
+                onClick={() => setZonaSeleccionada(z.zona_id)} // antes: z.zona_nombre
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 capitalize cursor-pointer ${
+                  zonaSeleccionada === z.zona_id // antes: z.zona_nombre
+                    ? "bg-primary text-white shadow-sm"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {z.zona_nombre} ({z.disponibles})
+              </button>
+            ),
+          )}
         </div>
       </section>
 
@@ -244,14 +288,17 @@ export function Buscar() {
             <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
             <div>
               <span className="text-sm font-semibold text-gray-900">
-                Ocupacion actual: {totalDisponibles} de {totalEspacios} disponibles
+                Ocupacion actual: {totalDisponibles} de {totalEspacios}{" "}
+                disponibles
               </span>
             </div>
           </div>
           <div className="flex-1 mx-6 h-3 bg-gray-100 rounded-full overflow-hidden">
             <div
               className="h-full bg-primary rounded-full transition-all duration-500"
-              style={{ width: `${((totalEspacios - totalDisponibles) / Math.max(totalEspacios, 1)) * 100}%` }}
+              style={{
+                width: `${((totalEspacios - totalDisponibles) / Math.max(totalEspacios, 1)) * 100}%`,
+              }}
             />
           </div>
         </div>
@@ -267,7 +314,9 @@ export function Buscar() {
       )}
 
       {isLoading && (
-        <div className="text-center py-12 text-gray-500">Cargando espacios...</div>
+        <div className="text-center py-12 text-gray-500">
+          Cargando espacios...
+        </div>
       )}
 
       {error && (

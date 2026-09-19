@@ -14,6 +14,8 @@ interface BookingModalProps {
   isPending: boolean;
 }
 
+const PLACA_RE = /^\d{3,4}[A-Z]{3}$/;
+
 function toLocalDatetime(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -46,9 +48,11 @@ export function BookingModal({
   };
 
   const horas = horasEntre(inicio, fin);
-  const estimado = horas * Number(tarifaPorHora);
-  const placaLimpia = placa.trim().toUpperCase();
-  const invalido = horas <= 0 || !inicio || !fin || placaLimpia.length < 3;
+  const horasCobradas = Math.ceil(horas); // se cobra por hora completa, sin fracciones
+  const estimado = horasCobradas * Number(tarifaPorHora);
+  const placaLimpia = placa.trim().toUpperCase().replace(/\s/g, "");
+  const placaValida = PLACA_RE.test(placaLimpia);
+  const invalido = horas <= 0 || !inicio || !fin || !placaValida;
 
   const handleConfirm = () => {
     if (invalido) return;
@@ -61,20 +65,30 @@ export function BookingModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-xl p-6" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl bg-white shadow-xl p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3 className="text-lg font-bold text-gray-900">Confirmar Reserva</h3>
         <div className="mt-4 space-y-3">
           <div className="rounded-lg bg-gray-50 p-3">
             <p className="text-sm text-gray-500">Espacio</p>
             <p className="font-semibold text-gray-900">{espacio.codigo}</p>
             {espacio.zona_nombre && (
-              <p className="text-xs text-gray-500 capitalize">{espacio.zona_nombre}</p>
+              <p className="text-xs text-gray-500 capitalize">
+                {espacio.zona_nombre}
+              </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Entrada</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Entrada
+            </label>
             <input
               type="datetime-local"
               value={inicio}
@@ -85,7 +99,9 @@ export function BookingModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Salida</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Salida
+            </label>
             <input
               type="datetime-local"
               value={fin}
@@ -96,23 +112,29 @@ export function BookingModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Placa del vehículo</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Placa del vehículo
+            </label>
             <input
               type="text"
               value={placa}
               onChange={(e) => setPlaca(e.target.value)}
-              placeholder="Ej: ABC123"
-              maxLength={15}
+              placeholder="Ej: 1234ABC"
+              maxLength={7}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm uppercase tracking-wide focus:border-primary focus:ring-1 focus:ring-primary"
             />
-            <p className="text-xs text-gray-400 mt-1">3-15 caracteres, solo letras, números y guión</p>
+            <p className="text-xs text-gray-400 mt-1">
+              4 números seguidos de 3 letras (ej: 1234ABC)
+            </p>
           </div>
 
           {horas > 0 && (
             <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Duración</span>
-                <span className="font-medium">{horas} {horas === 1 ? "hora" : "horas"}</span>
+                <span className="font-medium">
+                  {horasCobradas} {horasCobradas === 1 ? "hora" : "horas"}
+                </span>
               </div>
               <div className="flex justify-between text-sm text-gray-600 mt-1">
                 <span>Tarifa</span>

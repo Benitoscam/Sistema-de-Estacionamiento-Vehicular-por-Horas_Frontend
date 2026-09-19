@@ -1,5 +1,8 @@
 import type { Reserva } from "../types";
-import { apiPost } from "./client";
+import { apiGet, apiPost } from "./client";
+
+export const getReserva = (id: string): Promise<Reserva> =>
+  apiGet<Reserva>(`/api/reservas/${id}`);
 
 export const createReserva = (data: {
   espacio_id: string;

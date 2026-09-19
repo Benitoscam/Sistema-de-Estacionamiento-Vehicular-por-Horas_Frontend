@@ -5,6 +5,7 @@ import { Login } from "../pages/Login";
 import { Register } from "../pages/Register";
 import { StaffLogin } from "../pages/StaffLogin";
 import { Buscar } from "../pages/Buscar";
+import { ReservaDetalle } from "../pages/ReservaDetalle";
 import { NotFound } from "../pages/NotFound";
 
 export function AppRoutes() {
@@ -19,6 +20,16 @@ export function AppRoutes() {
           <RequireAuth roles={["admin", "operador", "cliente"]}>
             <Layout>
               <Buscar />
+            </Layout>
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/reservas/:id"
+        element={
+          <RequireAuth roles={["admin", "operador", "cliente"]}>
+            <Layout>
+              <ReservaDetalle />
             </Layout>
           </RequireAuth>
         }

@@ -2,13 +2,17 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { ApiError } from "../../api/client";
 import { useAuth } from "./useAuth";
+import type { User } from "../../types";
 
 interface Props {
-  onSuccess?: (user: { rol: string }) => void;
+  onSuccess?: (user: User) => void;
   submitLabel?: string;
 }
 
-export function SigninForm({ onSuccess, submitLabel = "Iniciar sesión" }: Props) {
+export function SigninForm({
+  onSuccess,
+  submitLabel = "Iniciar sesión",
+}: Props) {
   const { login } = useAuth();
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +28,11 @@ export function SigninForm({ onSuccess, submitLabel = "Iniciar sesión" }: Props
       const user = await login(correo.trim().toLowerCase(), password);
       onSuccess?.(user);
     } catch (err: unknown) {
-      setError(err instanceof ApiError ? err.message : "No se pudo conectar con el servidor.");
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "No se pudo conectar con el servidor.",
+      );
     } finally {
       setSending(false);
     }
@@ -83,7 +91,9 @@ export function SigninForm({ onSuccess, submitLabel = "Iniciar sesión" }: Props
         className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg disabled:opacity-50"
       >
         {sending ? "Ingresando…" : submitLabel}
-        <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+        <span className="material-symbols-outlined text-[18px]">
+          arrow_forward
+        </span>
       </button>
     </form>
   );

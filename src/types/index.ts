@@ -110,3 +110,34 @@ export interface ApiErr {
   code?: string;
   detail?: string;
 }
+
+export interface RegistroIngresoSalida {
+  id: string;
+  espacio_id: string;
+  espacio_codigo: string | null;
+  zona_nombre: string | null;
+  placa: string;
+  operador_id: string | null;
+  hora_entrada: string;
+  hora_salida: string | null;
+  monto_cobrado: string | null;
+}
+
+export interface DesgloseLiquidacion {
+  hora_entrada: string;
+  hora_salida: string;
+  tarifa_por_hora: string | null;
+  monto_cobrado: string;
+}
+
+export interface RegistroIngresoSalida {
+  id: string;
+  espacio_id: string;
+  espacio_codigo: string | null;
+  placa: string;
+  operador_id: string | null;
+  hora_entrada: string;
+  hora_salida: string | null;
+  monto_cobrado: string | null;
+  desglose?: DesgloseLiquidacion;
+}
